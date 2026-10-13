@@ -2,9 +2,9 @@
 
 Five agent skills from [OrbitCurve](https://github.com/OrbitCurve) for firmware extraction, static analysis, Ghidra reverse engineering, emulation, and security reporting, by [Hussein Muhaisen](https://github.com/husseinmuhaisen).
 
-The collection packages the existing workflows, references, templates, and Ghidra scripts for Claude Code and Codex. Installing it makes the instructions available to your agent; install the analysis tools separately.
+The collection packages the existing workflows, references, templates, and Ghidra scripts for Claude Code, Codex, and Droid (Factory AI). Installing it makes the instructions available to your agent; install the analysis tools separately.
 
-**Validation:** Claude Code and Codex packaging/discovery checks, Ghidra script regressions, and selected extraction/reporting checks are included. See [tested versions and limitations](docs/release-readiness.md). Firmware emulation remains target-specific.
+**Validation:** Packaging checks cover all three hosts, alongside Claude Code/Codex discovery checks, Ghidra script regressions, and selected extraction/reporting checks. See [tested versions and limitations](docs/release-readiness.md) for Droid installation evidence and runtime boundaries. Firmware emulation remains target-specific.
 
 ## Skills
 
@@ -52,6 +52,23 @@ Use `/skills` in Codex to find the installed skills, or mention one in a prompt:
 $firmware-reverse-engineering:firmware-static-analysis Inspect ./samples/busybox and report its architecture, imports, and protections.
 ```
 
+### Droid (Factory AI)
+
+In your terminal:
+
+```sh
+droid plugin marketplace add OrbitCurve/firmware-reverse-engineering
+droid plugin install firmware-reverse-engineering@firmware-reverse-engineering --scope user
+```
+
+Use `--scope project` instead for a project installation. In Droid, open `/skills` and check the Plugins and Effective tabs, then invoke a skill by its original name:
+
+```text
+/firmware-static-analysis Inspect ./samples/busybox and report its architecture, imports, and protections.
+```
+
+Start a new Droid session if the installed skills are not yet visible. See [Droid local testing](docs/compatibility.md#droid-factory-ai) for verification and [Factory's plugin documentation](https://docs.factory.com/harness/plugins) for host behavior.
+
 ### Other agents and standalone installation
 
 For agents supported by the [skills CLI](https://github.com/vercel-labs/skills), list the available skills, then select your agent interactively:
@@ -71,7 +88,8 @@ For manual installation paths, updates, removal, and tool requirements, see [doc
 | --- | --- |
 | `.claude-plugin/marketplace.json` | Claude Code marketplace catalog. |
 | `.agents/plugins/marketplace.json` | Codex marketplace catalog. |
-| `plugins/firmware-reverse-engineering/` | One self-contained plugin with manifests for both hosts. |
+| `.factory-plugin/marketplace.json` | Droid (Factory AI) marketplace catalog. |
+| `plugins/firmware-reverse-engineering/` | One self-contained plugin with manifests for all three hosts. |
 | `plugins/firmware-reverse-engineering/skills/` | Five skills with references, templates and four Ghidra scripts. |
 | `tools/` and `tests/` | Packaging/runtime checks and an approved content baseline. |
 | `docs/` | Compatibility instructions and release findings. |

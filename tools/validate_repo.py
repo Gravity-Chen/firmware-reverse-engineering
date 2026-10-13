@@ -35,10 +35,14 @@ def validate(root: Path) -> tuple[list[str], list[str]]:
     plugin = root / "plugins" / PLUGIN
     skills_root = plugin / "skills"
     try:
-        claude = read_json(plugin / ".claude-plugin/plugin.json")
-        codex = read_json(plugin / ".codex-plugin/plugin.json")
+        manifests = {
+            "Claude": read_json(plugin / ".claude-plugin/plugin.json"),
+            "Codex": read_json(plugin / ".codex-plugin/plugin.json"),
+            "Factory": read_json(plugin / ".factory-plugin/plugin.json"),
+        }
+        claude, codex = manifests["Claude"], manifests["Codex"]
         for field in ("name", "version", "description", "author", "repository", "skills", "license"):
-            if not claude.get(field) or claude.get(field) != codex.get(field):
+            if not claude.get(field) or any(manifest.get(field) != claude[field] for manifest in manifests.values()):
                 errors.append(f"Plugin manifests must agree on {field}")
         if claude.get("license") != "Apache-2.0":
             errors.append("Plugin license must be Apache-2.0")
@@ -48,15 +52,19 @@ def validate(root: Path) -> tuple[list[str], list[str]]:
             errors.append("Plugin version must be major.minor.patch")
         if claude.get("skills") != "./skills/":
             errors.append("Plugin must discover ./skills/")
-        for host, manifest in (("Claude", claude), ("Codex", codex)):
-            if any(k in manifest for k in ("hooks", "mcpServers", "apps", "commands", "agents")):
+        for host, manifest in manifests.items():
+            if any(k in manifest for k in ("hooks", "mcpServers", "apps", "commands", "agents", "droids")):
                 errors.append(f"{host}: unexpected executable or additional components")
         interface = codex.get("interface", {})
         for field in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
             if not isinstance(interface.get(field), str) or not interface[field].strip():
                 errors.append(f"Codex interface missing {field}")
 
-        for path, native in ((".claude-plugin/marketplace.json", False), (".agents/plugins/marketplace.json", True)):
+        for path, native in (
+            (".claude-plugin/marketplace.json", False),
+            (".agents/plugins/marketplace.json", True),
+            (".factory-plugin/marketplace.json", False),
+        ):
             catalog = read_json(root / path)
             entries = catalog.get("plugins", [])
             if catalog.get("name") != PLUGIN or len(entries) != 1:

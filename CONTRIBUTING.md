@@ -27,4 +27,4 @@ If a technical change is approved, include that approval in the pull request and
 
 Explain the problem, the resulting behavior, what was tested, and any remaining limitations. Do not describe a parser check as an end-to-end skill evaluation. For technical fixes, include a meaningful reproducer and verification in the relevant tool runtime.
 
-For releases, keep both plugin manifest versions aligned. After approval, bump them together and refresh the marketplace before checking the new installation. Run `python3 tools/validate_repo.py --release` before creating a release. Keep the Apache-2.0 license and NOTICE in both the root and packaged plugin, and rerun relevant runtime checks first.
+For releases, keep all three plugin manifest versions aligned. After approval, bump them together and refresh the marketplace before checking the new installation. Run `python3 tools/validate_repo.py --release` before creating a release. Keep the Apache-2.0 license and NOTICE in both the root and packaged plugin, and rerun relevant runtime checks first.

@@ -64,6 +64,58 @@ class PackagingTests(unittest.TestCase):
         errors, _ = validator.validate(self.root)
         self.assertIn("Plugin manifests must agree on version", errors)
 
+    def test_factory_manifest_metadata_drift_is_rejected(self):
+        path = self.root / "plugins/firmware-reverse-engineering/.factory-plugin/plugin.json"
+        original = json.loads(path.read_text())
+        for field in ("name", "version", "description", "author", "repository", "skills", "license"):
+            with self.subTest(field=field):
+                data = dict(original)
+                data[field] = "different"
+                path.write_text(json.dumps(data))
+                errors, _ = validator.validate(self.root)
+                self.assertIn(f"Plugin manifests must agree on {field}", errors)
+
+    def test_missing_factory_packaging_is_rejected(self):
+        for relative in (
+            ".factory-plugin/marketplace.json",
+            "plugins/firmware-reverse-engineering/.factory-plugin/plugin.json",
+        ):
+            with self.subTest(path=relative):
+                path = self.root / relative
+                original = path.read_bytes()
+                path.unlink()
+                errors, _ = validator.validate(self.root)
+                self.assertTrue(any("Validation could not complete" in issue for issue in errors))
+                path.write_bytes(original)
+
+    def test_broken_factory_catalog_source_is_rejected(self):
+        path = self.root / ".factory-plugin/marketplace.json"
+        data = json.loads(path.read_text())
+        data["plugins"][0]["source"] = "./nonexistent"
+        path.write_text(json.dumps(data))
+        errors, _ = validator.validate(self.root)
+        self.assertTrue(any(".factory-plugin/marketplace.json: plugin name or source does not resolve" in issue
+                            for issue in errors))
+
+    def test_stale_factory_catalog_version_is_rejected(self):
+        path = self.root / ".factory-plugin/marketplace.json"
+        data = json.loads(path.read_text())
+        data["plugins"][0]["version"] = "9.0.0"
+        path.write_text(json.dumps(data))
+        errors, _ = validator.validate(self.root)
+        self.assertIn(".factory-plugin/marketplace.json: stale marketplace version", errors)
+
+    def test_factory_additional_components_are_rejected(self):
+        path = self.root / "plugins/firmware-reverse-engineering/.factory-plugin/plugin.json"
+        original = json.loads(path.read_text())
+        for component in ("hooks", "mcpServers", "apps", "commands", "agents", "droids"):
+            with self.subTest(component=component):
+                data = dict(original)
+                data[component] = {}
+                path.write_text(json.dumps(data))
+                errors, _ = validator.validate(self.root)
+                self.assertIn("Factory: unexpected executable or additional components", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

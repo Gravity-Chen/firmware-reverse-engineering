@@ -47,6 +47,29 @@ model-token savings.
 
 ## Verification and limits
 
+### Droid (Factory AI) packaging follow-up
+
+Checked October 13, 2026 with Droid 0.173.0 on Windows. Native Factory
+marketplace and plugin metadata point to the existing shared skills directory.
+The five skills and their approved content baseline are unchanged.
+
+The real CLI registered the local repository as a marketplace, installed the
+plugin at user scope, and listed it as active. Marketplace update and plugin
+uninstall/reinstall also succeeded. The installed cache contained the native
+Factory manifest, all five skill entrypoints, and all 29 approved skill files
+with matching SHA-256 hashes. Testing used an isolated Factory home outside
+the checkout, with keyring access and automatic CLI updates disabled.
+
+The release validator and all 21 unit tests passed; the Windows test run used
+Python UTF-8 mode (`python -X utf8 -m unittest discover -s tests -v`). New
+packaging regressions cover missing Factory metadata, manifest drift, invalid
+catalog sources, stale versions, and unexpected components. These checks
+establish packaging and installation, not authenticated Droid skill invocation
+or firmware analysis. Use the [Droid local testing steps](compatibility.md#droid-factory-ai)
+to verify the effective skills in an interactive session.
+
+### Existing workflow evidence
+
 | Check | Evidence / boundary |
 | --- | --- |
 | Repository checks | Five skills, matching manifests/catalogs/licenses, complete resources and approved SHA-256 baseline. Mutation tests exercise dropped files, changed content, bad paths and metadata drift. |

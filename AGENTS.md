@@ -1,6 +1,6 @@
 # Repository maintenance
 
-This repository distributes firmware reverse engineering skills as one Claude Code and Codex plugin.
+This repository distributes firmware reverse engineering skills as one plugin for Claude Code, Codex, and Droid (Factory AI).
 
 ## Preserve technical content
 
@@ -11,7 +11,7 @@ Keep packaging work in separate changes from technical revisions. Record discove
 ## Packaging
 
 - Keep one copy of each skill and its resources, inside the plugin directory.
-- Keep the Claude Code and Codex plugin names, versions, descriptions, and skill roots consistent.
+- Keep the Claude Code, Codex, and Droid plugin names, versions, descriptions, and skill roots consistent.
 - Marketplace source paths are relative to the repository root.
 - Do not add hooks, MCP servers, dependency installers, or automatic tool permissions unless requested.
 - Never infer an open-source license or claim an analysis workflow was tested when only packaging was checked.
