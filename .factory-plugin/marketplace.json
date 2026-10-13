@@ -1,0 +1,15 @@
+{
+  "name": "firmware-reverse-engineering",
+  "owner": {
+    "name": "OrbitCurve",
+    "url": "https://github.com/OrbitCurve"
+  },
+  "description": "Firmware extraction, static analysis, Ghidra reverse engineering, emulation, and security reporting skills.",
+  "plugins": [
+    {
+      "name": "firmware-reverse-engineering",
+      "source": "./plugins/firmware-reverse-engineering",
+      "description": "Firmware extraction, static analysis, Ghidra reverse engineering, emulation, and security reporting skills."
+    }
+  ]
+}

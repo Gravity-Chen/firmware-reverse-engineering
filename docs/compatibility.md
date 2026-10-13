@@ -6,9 +6,12 @@
 | --- | --- | --- |
 | Claude Code | `.claude-plugin` catalog and plugin manifest | `/firmware-reverse-engineering:<skill-name>` |
 | Codex | `.agents/plugins` catalog and `.codex-plugin` manifest | Select in `/skills` or mention `$firmware-reverse-engineering:<skill-name>`. |
+| Droid (Factory AI) | `.factory-plugin` catalog and plugin manifest | Select in `/skills` or invoke `/<skill-name>`. |
 | Other Agent Skills hosts | Complete skill directories, including their resources | Depends on the host. |
 
-All routes use the same five skills. Plugin skills have the `firmware-reverse-engineering:` prefix in both hosts. Standalone skill copies use their original names. Frontmatter uses standard `name` and `description` fields, host-neutral wording and no host-specific tool restrictions.
+All routes use the same five skills. Claude Code and Codex plugin skills have the `firmware-reverse-engineering:` prefix. Droid plugin skills and standalone skill copies use their original names. Frontmatter uses standard `name` and `description` fields, host-neutral wording and no host-specific tool restrictions.
+
+Droid reads the native `.factory-plugin/marketplace.json` before its Claude Code compatibility fallback. It discovers `skills/` at the plugin root; `plugin.json` fields are descriptive metadata. The Factory manifest stays aligned with the other hosts, and all three catalogs point to the same plugin directory.
 
 If you prefer manual installation, copy the desired complete skill directories from `plugins/firmware-reverse-engineering/skills/` into one of these locations:
 
@@ -16,8 +19,11 @@ If you prefer manual installation, copy the desired complete skill directories f
 | --- | --- | --- |
 | Claude Code | `.claude/skills/<skill-name>/` | `~/.claude/skills/<skill-name>/` |
 | Codex | `.agents/skills/<skill-name>/` | `~/.agents/skills/<skill-name>/` |
+| Droid (Factory AI) | `.factory/skills/<skill-name>/` | `~/.factory/skills/<skill-name>/` |
 
 For example, copy `firmware-static-analysis/`, including `references/`, as a directory named `firmware-static-analysis` under the chosen location. Do not copy only `SKILL.md`. Back up an existing installation before replacing it. On Windows, `~` refers to your user profile.
+
+Droid also discovers `.agents/skills/` and `~/.agents/skills/`. Avoid installing duplicate standalone and plugin copies: a higher-priority skill with the same name can override the plugin. Check the Effective tab in `/skills` for the active copy.
 
 ## Tool requirements
 
@@ -35,7 +41,7 @@ Most recipes assume Linux and use Debian/Ubuntu package names. Native Windows an
 
 ## Local testing
 
-From a checkout, validate both manifests and the catalog:
+From a checkout, validate all three manifests and catalogs:
 
 ```sh
 python3 tools/validate_repo.py
@@ -62,6 +68,23 @@ codex plugin list --marketplace firmware-reverse-engineering
 ```
 
 In Codex, verify the five skills in `/skills`, select `firmware-static-analysis`, and ask it to locate `references/architectures.md`. Local and remote copies use the same marketplace name, so remove the local test registration before switching to the hosted repository.
+
+### Droid (Factory AI)
+
+Register the repository root as a local marketplace, then install the plugin:
+
+```sh
+droid plugin marketplace add /absolute/path/to/firmware-reverse-engineering
+droid plugin marketplace list
+droid plugin install firmware-reverse-engineering@firmware-reverse-engineering --scope user
+droid plugin list --scope user
+```
+
+Droid derives the registered marketplace name from its source. If the checkout directory has another name, use the name reported by `marketplace list` after `@` in the install command. The plugin subdirectory alone is not a marketplace. Remove the local test plugin and marketplace registration before switching to the remote repository.
+
+Start Droid, inspect `/skills` (Plugins and Effective tabs), and verify all five skill names. Invoke `/firmware-static-analysis` and ask it to locate `references/architectures.md`. Confirm the active skill comes from this plugin. Installation and file checks alone do not demonstrate model invocation or firmware analysis.
+
+### Standalone discovery
 
 Test standalone discovery without installing anything:
 
@@ -132,6 +155,22 @@ codex plugin remove firmware-reverse-engineering@firmware-reverse-engineering
 codex plugin marketplace remove firmware-reverse-engineering
 ```
 
+For Droid, update the marketplace and plugin using the scope where it was installed:
+
+```sh
+droid plugin marketplace update firmware-reverse-engineering
+droid plugin update firmware-reverse-engineering@firmware-reverse-engineering --scope user
+```
+
+To remove it:
+
+```sh
+droid plugin uninstall firmware-reverse-engineering@firmware-reverse-engineering --scope user
+droid plugin marketplace remove firmware-reverse-engineering
+```
+
+Use `--scope project` for project installations.
+
 For manual copies, update or remove only the five skill directories you installed. Do not remove the host's whole skills directory.
 
 ## Sources
@@ -145,3 +184,8 @@ Packaging was checked against these sources on September 7, 2026:
 - [OpenAI plugins documentation](https://learn.chatgpt.com/docs/plugins)
 - [Trail of Bits skills](https://github.com/trailofbits/skills)
 - [Vercel skills CLI](https://github.com/vercel-labs/skills)
+
+Droid packaging was checked against these sources on October 13, 2026:
+
+- [Factory plugins and marketplaces](https://docs.factory.com/harness/plugins)
+- [Factory skills and discovery](https://docs.factory.com/harness/skills)
